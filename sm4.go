@@ -1,4 +1,4 @@
-package main
+package simple_gmssl_go
 
 /*
 #include <stdlib.h>
