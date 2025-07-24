@@ -14,7 +14,6 @@ import (
 )
 import (
 	"errors"
-	"fmt"
 	"unsafe"
 )
 
@@ -40,10 +39,8 @@ func (sm2 *Sm2) GenerateKey() {
 	C.sm2_key_generate(&sm2.sm2_key)
 	C.sm2_private_key_info_to_der(&sm2.sm2_key, &key, &key_len)
 	C.sm2_public_key_info_to_der(&sm2.sm2_key, &pub, &pub_len)
-	// C.GenKey(&sm2.sm2_key, key, &key_len, pub, &pub_len)
 	var keyLen uint64 = *(*uint64)(unsafe.Pointer(&key_len))
 	var pubLen uint64 = *(*uint64)(unsafe.Pointer(&pub_len))
-	fmt.Println("-----", keyLen, pubLen)
 	var keyOut = make([]byte, keyLen)
 	var pubOut = make([]byte, pubLen)
 	po := uintptr(unsafe.Pointer(k))
@@ -70,7 +67,7 @@ func (sm2 *Sm2) ImportPri(pri []byte) {
 	sm2.pri = pri
 	pri_len := C.size_t(len(pri))
 	cData := C.malloc(512)
-	defer C.free(cData) // 确保内存被释放
+	defer C.free(cData)
 	C.memcpy(cData, unsafe.Pointer(&pri[0]), pri_len)
 	p := (*C.uint8_t)(cData)
 	attrs := (*C.uint8_t)(C.malloc(C.size_t(0)))
@@ -81,7 +78,7 @@ func (sm2 *Sm2) ImportPub(pub []byte) {
 	sm2.pub = pub
 	pub_len := C.size_t(len(pub))
 	cData := C.malloc(512)
-	defer C.free(cData) // 确保内存被释放
+	defer C.free(cData)
 	C.memcpy(cData, unsafe.Pointer(&pub[0]), pub_len)
 	p := (*C.uint8_t)(cData)
 	pub_len = 0

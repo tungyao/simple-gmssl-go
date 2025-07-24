@@ -9,7 +9,6 @@ import "C"
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"unsafe"
 )
 
@@ -54,12 +53,9 @@ func (sm4 *Sm4) Encrypt(in []byte, key []byte, iv []byte) ([]byte, error) {
 	nblock := C.size_t(len(padded) / 16)
 	tmp_iv := C.malloc(C.size_t(16))
 	defer C.free(tmp_iv)
-
 	C.memcpy(tmp_iv, unsafe.Pointer(&iv[0]), C.size_t(16))
 	out := make([]byte, len(padded))
 	ivarr := (*C.uint8_t)(tmp_iv)
-	fmt.Println(padded)
-
 	C.sm4_set_encrypt_key(&sm4.sm4_key, (*C.uchar)(&key[0]))
 	C.sm4_cbc_encrypt_blocks(&sm4.sm4_key, ivarr, (*C.uchar)(&padded[0]), nblock, (*C.uchar)(&out[0]))
 	return out, nil
@@ -76,10 +72,8 @@ func (sm4 *Sm4) Decrypt(in []byte, key []byte, iv []byte) ([]byte, error) {
 	defer C.free(tmp_iv)
 	C.memcpy(tmp_iv, unsafe.Pointer(&iv[0]), C.size_t(16))
 	ivarr := (*C.uint8_t)(tmp_iv)
-
 	C.sm4_set_decrypt_key(&sm4.sm4_key, (*C.uchar)(&key[0]))
 	nblock := C.size_t(len(in) / 16)
-
 	C.sm4_cbc_decrypt_blocks(&sm4.sm4_key, ivarr, (*C.uchar)(&in[0]), nblock, (*C.uchar)(&plaintext[0]))
 	return pkcs7Unpadding(plaintext), nil
 }
